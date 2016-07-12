@@ -14,7 +14,7 @@ Torch aims to be stable and fast.
 * Current developing version:  1.9.4
 * Recommanded(stable) version: R1.1.2-RELEASE
 
-(If you're running a previous 1.9.4 Beta, upgrading is highly recommended.)
+(If you're running a previous Beta, upgrading is highly recommended.)
 
 ####Features
 * All features of Tacospigot/Paper/Spigot/CraftBukkit is included.
@@ -35,9 +35,9 @@ To compile Torch, you need JDK8(or above), git, bash, maven, and an internet con
 * First clone and build *[TacoSpigot](https://github.com/TacoSpigot/TacoSpigot/)*,
 run `git clone --branch version/1.9.4 https://github.com/TacoSpigot/TacoSpigot.git`
 * then clone this repo,
-run `git clone https://github.com/TorchSpigot/Torch.git` and copy files to the main folder
+run `git clone https://github.com/TorchSpigot/Torch.git` and copy files to the main repo folder
 * last, run `./applypatches.sh`,
-run `mvn clean install`, and get final jar in *./TacoSpigot-Server/target/*
+and `mvn clean install`, you can get the final jar in *./TacoSpigot-Server/target/*
 
 
 Feel free to open a PR or issue.
