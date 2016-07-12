@@ -24,6 +24,8 @@ Torch aims to be stable and fast.
 * The enhanced API and more!
 
 ####How To (Server Admins)
+To use Torch, you need JRE8(or above).
+
 * Get Jar file(download): *[Click Here](http://t.im/torch)*, and use *Torch-1.9.4-R0.x.jar*, to start server directly.
 * Just enjoy Torch! :)
 
