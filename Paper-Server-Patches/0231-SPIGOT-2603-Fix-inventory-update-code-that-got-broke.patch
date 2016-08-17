@@ -1,4 +1,4 @@
-From 3a690cfdb719cce9eef492fd69087217577c96f1 Mon Sep 17 00:00:00 2001
+From a503263ae2f86484adee605963142d1403cbb325 Mon Sep 17 00:00:00 2001
 From: SotrForgotten <i@omc.hk>
 Date: Mon, 15 Aug 2016 22:44:42 +0800
 Subject: [PATCH] SPIGOT-2603: Fix inventory update code that got broken in
@@ -50,6 +50,21 @@ index 49b692b..56297c6 100644
          </plugins>
      </build>
  </project>
+diff --git a/src/main/java/com/mrpowergamerbr/parappatown/utils/LightStatic.java b/src/main/java/com/mrpowergamerbr/parappatown/utils/LightStatic.java
+index 8c14690..2a1856a 100644
+--- a/src/main/java/com/mrpowergamerbr/parappatown/utils/LightStatic.java
++++ b/src/main/java/com/mrpowergamerbr/parappatown/utils/LightStatic.java
+@@ -5,7 +5,6 @@ import java.util.Random;
+ import com.mrpowergamerbr.utils.LightRandom;
+ 
+ public class LightStatic {
+-	
+-	public static LightRandom random = new LightRandom();
+-	public static Random RNG = new Random();
++	public final static LightRandom random = new LightRandom();
++	public final static Random RNG = new Random();
+ }
+\ No newline at end of file
 diff --git a/src/main/java/net/minecraft/server/BlockMinecartTrackAbstract.java b/src/main/java/net/minecraft/server/BlockMinecartTrackAbstract.java
 index d2516a5..12ad0c3 100644
 --- a/src/main/java/net/minecraft/server/BlockMinecartTrackAbstract.java
@@ -268,25 +283,94 @@ index 6abee8f..55d401d 100644
  	private static int throttleCounter = 0;
  	// CraftBukkit end
  
+diff --git a/src/main/java/net/minecraft/server/MathHelper.java b/src/main/java/net/minecraft/server/MathHelper.java
+index dbaf24a..327cb1b 100644
+--- a/src/main/java/net/minecraft/server/MathHelper.java
++++ b/src/main/java/net/minecraft/server/MathHelper.java
+@@ -111,12 +111,8 @@ public class MathHelper {
+ 
+ 	public static double a(long[] along) {
+ 		long i = 0L;
+-		long[] along1 = along;
+-		int j = along.length;
+-
+-		for (int k = 0; k < j; ++k) {
+-			long l = along1[k];
+-
++		
++		for (long l : along) {
+ 			i += l;
+ 		}
+ 
+@@ -125,41 +121,17 @@ public class MathHelper {
+ 
+ 	public static float g(float f) {
+ 		f %= 360.0F;
+-		if (f >= 180.0F) {
+-			f -= 360.0F;
+-		}
+-
+-		if (f < -180.0F) {
+-			f += 360.0F;
+-		}
+-
+-		return f;
++		return f < -180.0F ? (f += 360.0F) : (f -= 360.0F);
+ 	}
+ 
+ 	public static double g(double d0) {
+ 		d0 %= 360.0D;
+-		if (d0 >= 180.0D) {
+-			d0 -= 360.0D;
+-		}
+-
+-		if (d0 < -180.0D) {
+-			d0 += 360.0D;
+-		}
+-
+-		return d0;
++		return d0 < -180.0D ? (d0 += 360.0D) : (d0 -= 360.0D);
+ 	}
+ 
+ 	public static int b(int i) {
+ 		i %= 360;
+-		if (i >= 180) {
+-			i -= 360;
+-		}
+-
+-		if (i < -180) {
+-			i += 360;
+-		}
+-
+-		return i;
++		return i < -180 ? (i += 360) : (i -= 360);
+ 	}
+ 
+ 	public static int a(String s, int i) {
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index 7fd311c..27af288 100644
+index 7fd311c..f3533fc 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
-@@ -906,10 +906,10 @@ public abstract class MinecraftServer implements Runnable, ICommandListener, IAs
- 		this.server.getScheduler().mainThreadHeartbeat(this.ticks); // CraftBukkit
- 		this.methodProfiler.a("jobs");
- 		// Spigot start
--		FutureTask<?> entry;
--		int count = this.j.size();
--		while (count-- > 0 && (entry = this.j.poll()) != null) {
+@@ -123,7 +123,7 @@ public abstract class MinecraftServer implements Runnable, ICommandListener, IAs
+ 		networkQueue.add(ListenableFutureTask.create(run));
+ 	}
+ 
+-	synchronized static void processNetworkQueue() {
++	static void processNetworkQueue() {
+ 		FutureTask<?> entry;
+ 		int count = networkQueue.size();
+ 		while (count-- > 0 && (entry = networkQueue.poll()) != null) {
+@@ -909,9 +909,7 @@ public abstract class MinecraftServer implements Runnable, ICommandListener, IAs
+ 		FutureTask<?> entry;
+ 		int count = this.j.size();
+ 		while (count-- > 0 && (entry = this.j.poll()) != null) {
 -			synchronized (this) {
-+		synchronized(this) {
-+			FutureTask<?> entry;
-+			int count = this.j.size();
-+			while (count-- > 0 && (entry = this.j.poll()) != null) {
- 				SystemUtils.a(entry, MinecraftServer.LOGGER);
- 			}
+-				SystemUtils.a(entry, MinecraftServer.LOGGER);
+-			}
++			SystemUtils.a(entry, MinecraftServer.LOGGER);
  		}
+ 		// Spigot end
+ 		MinecraftTimings.minecraftSchedulerTimer.stopTiming(); // Paper
 diff --git a/src/main/java/net/minecraft/server/NameReferencingFileConverter.java b/src/main/java/net/minecraft/server/NameReferencingFileConverter.java
 index f83be8f..1938b0f 100644
 --- a/src/main/java/net/minecraft/server/NameReferencingFileConverter.java
