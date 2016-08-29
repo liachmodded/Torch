@@ -56,3 +56,5 @@ Have an idea for an optimization, or found a bug?
 
 ####Donate/Support
 *[Link](http://mc.50zf.com/spay/56)*  :)
+
+ Or....Try This *[Link](https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=caowenkang1@qq.com&currency_code=USD&amount=1&return=www.torchmc.org&item_name=Donate_To_TorchProject&undefined_quantity=1&no_note=0)*    (｡・`ω´･)    
